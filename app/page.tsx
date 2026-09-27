@@ -1,5 +1,6 @@
 "use client";
 import {useState} from "react";
+import {useClerk} from "@clerk/nextjs";
 import {CalendarDays,CheckCircle2,ClipboardCheck,Clock3,FileText,FolderOpen,LayoutDashboard,MessageSquare,Users,WalletCards,Building2,ArrowUpRight,Menu,X,PlayCircle,LogOut,ExternalLink} from "lucide-react";
 
 type Task={title:string;done:boolean;tag:string};
@@ -8,6 +9,7 @@ const nav=[["Visão geral",LayoutDashboard],["Briefing",FileText],["Cronograma",
 const baseTasks:Task[]=[{title:"Briefing validado com o cliente",done:true,tag:"Pré-produção"},{title:"Mapa de fornecedores confirmado",done:true,tag:"Produção"},{title:"Cronograma técnico final",done:false,tag:"Produção"},{title:"Lista de convidados revisada",done:false,tag:"Convidados"},{title:"Roteiro do evento aprovado",done:false,tag:"Cerimonial"},{title:"Plano de desmontagem",done:false,tag:"Pós-produção"}];
 
 export default function Home(){
+ const {signOut}=useClerk();
  const [active,setActive]=useState("Visão geral"); const [tasks,setTasks]=useState(baseTasks); const [mobile,setMobile]=useState(false);
  const done=tasks.filter(t=>t.done).length; const progress=Math.round(done/tasks.length*100);
  return <main className="shell">
@@ -19,7 +21,7 @@ export default function Home(){
    </div>
    <div className="project"><span>PROJETO ATIVO</span><strong>Experiência de Marca</strong><small>12 OUT 2026 · RIO DE JANEIRO</small></div>
    <nav>{nav.map(([label,Icon])=><button key={label} className={active===label?"active":""} onClick={()=>{setActive(label);setMobile(false)}}><Icon size={17}/>{label}</button>)}</nav>
-   <div className="sidebarBottom"><div className="client"><span>PP</span><div><b>Cliente</b><small>Projeto Corporativo</small></div></div><a className="backSite" href="https://principadoproducoes.vercel.app"><ExternalLink size={14}/> Site Principado</a><a className="logout" href="/login"><LogOut size={14}/> Sair da conta</a></div>
+   <div className="sidebarBottom"><div className="client"><span>PP</span><div><b>Cliente</b><small>Projeto Corporativo</small></div></div><a className="backSite" href="https://principadoproducoes.vercel.app"><ExternalLink size={14}/> Site Principado</a><button className="logout" onClick={()=>signOut({redirectUrl:"/login"})}><LogOut size={14}/> Sair da conta</button></div>
   </aside>
   <section className="content">
    <header><button className="menu" onClick={()=>setMobile(true)}><Menu/></button><div><span className="eyebrow">CENTRAL DO CLIENTE</span><h1>{active}</h1><p>Tenha visão, controle e organização de cada etapa da produção.</p></div><button className="profile">PP</button></header>
