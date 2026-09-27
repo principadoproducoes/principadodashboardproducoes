@@ -1,6 +1,6 @@
 "use client";
 import {useState} from "react";
-import {Show,RedirectToSignIn,useClerk} from "@clerk/nextjs";
+import {RedirectToSignIn,useAuth,useClerk} from "@clerk/nextjs";
 import {CalendarDays,CheckCircle2,ClipboardCheck,Clock3,FileText,FolderOpen,LayoutDashboard,MessageSquare,Users,WalletCards,Building2,ArrowUpRight,Menu,X,PlayCircle,LogOut,ExternalLink} from "lucide-react";
 
 type Task={title:string;done:boolean;tag:string};
@@ -12,9 +12,12 @@ const baseTasks:Task[]=[{title:"Briefing validado com o cliente",done:true,tag:"
 
 export default function Home(){
  const {signOut}=useClerk();
+ const {isLoaded,isSignedIn}=useAuth();
+ if(!isLoaded) return null;
+ if(!isSignedIn) return <RedirectToSignIn />;
  const [active,setActive]=useState("Visão geral"); const [tasks,setTasks]=useState(baseTasks); const [mobile,setMobile]=useState(false);
  const done=tasks.filter(t=>t.done).length; const progress=Math.round(done/tasks.length*100);
- const dashboardContent = (<main className="shell">
+ return (<main className="shell">
   <aside className={mobile?"sidebar open":"sidebar"}>
    <div className="brand">
     <a className="brandLogo" href="https://principadoproducoes.vercel.app" aria-label="Principado Produções"><img src={logo} alt="Principado Produções"/></a>
@@ -33,8 +36,4 @@ export default function Home(){
    <footer><span>PRINCIPADO PRODUÇÕES</span><span>Dashboard do cliente · Projeto Corporativo</span></footer>
   </section>
  </main>);
- return <>
-  <Show when="signed-in">{dashboardContent}</Show>
-  <Show when="signed-out"><RedirectToSignIn /></Show>
- </>;
 }
