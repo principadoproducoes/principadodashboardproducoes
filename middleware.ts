@@ -1,13 +1,6 @@
 import { clerkMiddleware } from "@clerk/nextjs/server";
 
-export default clerkMiddleware(
-  async (auth, req) => {
-    if (req.nextUrl.pathname !== "/login") {
-      await auth.protect();
-    }
-  },
-  { signInUrl: "/login" },
-);
+export default clerkMiddleware();
 
 export const config = {
   matcher: [
