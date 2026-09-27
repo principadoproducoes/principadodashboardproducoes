@@ -11,11 +11,10 @@ const baseTasks:Task[]=[{title:"Briefing validado com o cliente",done:true,tag:"
 // The dashboard keeps the current UI responsive while real project data is progressively connected to Neon.
 
 export default function Home(){
- const dashboardContent = (
  const {signOut}=useClerk();
  const [active,setActive]=useState("Visão geral"); const [tasks,setTasks]=useState(baseTasks); const [mobile,setMobile]=useState(false);
  const done=tasks.filter(t=>t.done).length; const progress=Math.round(done/tasks.length*100);
- return <main className="shell">
+ const dashboardContent = (<main className="shell">
   <aside className={mobile?"sidebar open":"sidebar"}>
    <div className="brand">
     <a className="brandLogo" href="https://principadoproducoes.vercel.app" aria-label="Principado Produções"><img src={logo} alt="Principado Produções"/></a>
@@ -33,5 +32,9 @@ export default function Home(){
    <div className="grid"><section className="panel wide"><div className="panelHead"><div><span className="eyebrow">ACOMPANHAMENTO</span><h3>Próximas entregas</h3></div><button className="ghost">Ver tudo <ArrowUpRight size={15}/></button></div><div className="tasks">{tasks.map((task,i)=><label className="task" key={task.title}><input type="checkbox" checked={task.done} onChange={()=>setTasks(tasks.map((x,j)=>j===i?{...x,done:!x.done}:x))}/><span className="fakeCheck">{task.done?"✓":""}</span><div><b className={task.done?"done":""}>{task.title}</b><small>{task.tag}</small></div><span className="taskDate">{i<2?"Concluído":i===2?"28 set":"03 out"}</span></label>)}</div></section><section className="panel"><div className="panelHead"><div><span className="eyebrow">CRONOGRAMA</span><h3>Próximos marcos</h3></div></div><div className="timeline"><div><span>28 SET</span><b>Cronograma técnico</b><small>Revisão final</small></div><div><span>03 OUT</span><b>Ensaio geral</b><small>Equipe completa</small></div><div><span>10 OUT</span><b>Montagem</b><small>08:00 · Local</small></div><div><span>12 OUT</span><b>EVENTO</b><small>18:00 · Experiência de Marca</small></div></div></section></div></>:<section className="panel placeholder"><span className="eyebrow">MÓDULO</span><h2>{active}</h2><p>Este módulo já está previsto na estrutura do Principado Dashboard. A próxima etapa é conectar seus dados reais, permissões e colaboração com a equipe Principado.</p><div className="placeholderCards"><div><CheckCircle2/><b>Organização</b><small>Dados estruturados por projeto.</small></div><div><Users/><b>Colaboração</b><small>Cliente e produção no mesmo fluxo.</small></div><div><FolderOpen/><b>Histórico</b><small>Arquivos, decisões e entregas centralizados.</small></div></div></section>}
    <footer><span>PRINCIPADO PRODUÇÕES</span><span>Dashboard do cliente · Projeto Corporativo</span></footer>
   </section>
- </main>
+ </main></main>);
+ return <>
+  <Show when="signed-in">{dashboardContent}</Show>
+  <Show when="signed-out"><RedirectToSignIn /></Show>
+ </>;
 }
