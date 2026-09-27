@@ -1,5 +1,6 @@
 import "./globals.css";
 import type { ReactNode } from "react";
+import { ClerkProvider } from "@clerk/nextjs";
 import { DM_Sans, Manrope } from "next/font/google";
 
 const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-dm-sans", display: "swap" });
@@ -13,7 +14,9 @@ export const metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="pt-BR">
-      <body className={`${dmSans.variable} ${manrope.variable}`}>{children}</body>
+      <body className={`${dmSans.variable} ${manrope.variable}`}>
+        <ClerkProvider>{children}</ClerkProvider>
+      </body>
     </html>
   );
 }
