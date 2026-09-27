@@ -8,6 +8,8 @@ const logo="https://principadoproducoes.vercel.app/assets/logo-principado-exact.
 const nav=[["Visão geral",LayoutDashboard],["Briefing",FileText],["Cronograma",CalendarDays],["Checklist",ClipboardCheck],["Orçamento",WalletCards],["Fornecedores",Building2],["Equipe",Users],["Convidados",Users],["Roteiro",PlayCircle],["Arquivos",FolderOpen],["Comunicação",MessageSquare]] as const;
 const baseTasks:Task[]=[{title:"Briefing validado com o cliente",done:true,tag:"Pré-produção"},{title:"Mapa de fornecedores confirmado",done:true,tag:"Produção"},{title:"Cronograma técnico final",done:false,tag:"Produção"},{title:"Lista de convidados revisada",done:false,tag:"Convidados"},{title:"Roteiro do evento aprovado",done:false,tag:"Cerimonial"},{title:"Plano de desmontagem",done:false,tag:"Pós-produção"}];
 
+// The dashboard keeps the current UI responsive while real project data is progressively connected to Neon.
+
 export default function Home(){
  const {signOut}=useClerk();
  const [active,setActive]=useState("Visão geral"); const [tasks,setTasks]=useState(baseTasks); const [mobile,setMobile]=useState(false);
