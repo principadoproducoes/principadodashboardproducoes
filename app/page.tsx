@@ -13,9 +13,9 @@ const baseTasks:Task[]=[{title:"Briefing validado com o cliente",done:true,tag:"
 export default function Home(){
  const {signOut}=useClerk();
  const {isLoaded,isSignedIn}=useAuth();
+ const [active,setActive]=useState("Visão geral"); const [tasks,setTasks]=useState(baseTasks); const [mobile,setMobile]=useState(false);
  if(!isLoaded) return null;
  if(!isSignedIn) return <RedirectToSignIn />;
- const [active,setActive]=useState("Visão geral"); const [tasks,setTasks]=useState(baseTasks); const [mobile,setMobile]=useState(false);
  const done=tasks.filter(t=>t.done).length; const progress=Math.round(done/tasks.length*100);
  return (<main className="shell">
   <aside className={mobile?"sidebar open":"sidebar"}>
