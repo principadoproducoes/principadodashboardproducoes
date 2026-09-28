@@ -4,7 +4,7 @@ export default clerkMiddleware();
 
 export const config = {
   matcher: [
-    "/api/(.*)",
+    "/api/projects",
     "/trpc/(.*)",
     "/__clerk/(.*)",
   ],
