@@ -39,9 +39,9 @@ export async function GET() {
       updated_at = NOW()
   `;
 
-  const accessRows = await sql\`
+  const accessRows = await sql`
     SELECT role FROM users WHERE clerk_user_id = ${userId} LIMIT 1
-  \`;
+  `;
   const role = accessRows[0]?.role ?? "client";
 
   const projects = await sql`
@@ -79,7 +79,7 @@ export async function GET() {
     FROM projects p
     LEFT JOIN project_members pm ON pm.project_id = p.id
     LEFT JOIN users u ON u.id = pm.user_id
-    LEFT JOIN tasks t ON t.project_id = p.id
+    LEFT JOIN tasks t ON t.project_id = t.project_id
     WHERE EXISTS (
       SELECT 1
       FROM users viewer
