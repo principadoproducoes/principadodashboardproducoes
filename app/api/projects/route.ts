@@ -79,7 +79,7 @@ export async function GET() {
     FROM projects p
     LEFT JOIN project_members pm ON pm.project_id = p.id
     LEFT JOIN users u ON u.id = pm.user_id
-    LEFT JOIN tasks t ON t.project_id = t.project_id
+    LEFT JOIN tasks t ON t.project_id = p.id
     WHERE EXISTS (
       SELECT 1
       FROM users viewer
