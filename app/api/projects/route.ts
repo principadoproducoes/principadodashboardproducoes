@@ -51,11 +51,29 @@ export async function GET() {
       p.budget_approved,
       p.guest_target,
       p.guest_confirmed,
-      p.progress
+      p.progress,
+      COALESCE(
+        json_agg(
+          json_build_object(
+            'id', t.id,
+            'title', t.title,
+            'description', t.description,
+            'category', t.category,
+            'status', t.status,
+            'due_date', t.due_date,
+            'completed_at', t.completed_at,
+            'sort_order', t.sort_order
+          )
+          ORDER BY t.sort_order, t.due_date NULLS LAST, t.created_at
+        ) FILTER (WHERE t.id IS NOT NULL),
+        '[]'::json
+      ) AS tasks
     FROM projects p
     JOIN project_members pm ON pm.project_id = p.id
     JOIN users u ON u.id = pm.user_id
+    LEFT JOIN tasks t ON t.project_id = p.id
     WHERE u.clerk_user_id = ${userId}
+    GROUP BY p.id
     ORDER BY p.event_date NULLS LAST, p.created_at DESC
   `;
 
