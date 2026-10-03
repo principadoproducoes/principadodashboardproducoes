@@ -1,6 +1,7 @@
 "use client";
 import {useEffect,useMemo,useState} from "react";
 import {RedirectToSignIn,useAuth,useClerk} from "@clerk/nextjs";
+import {useRouter} from "next/navigation";
 import {CalendarDays,CheckCircle2,ClipboardCheck,Clock3,FileText,FolderOpen,LayoutDashboard,MessageSquare,Users,WalletCards,Building2,ArrowUpRight,Menu,X,PlayCircle,LogOut,ExternalLink} from "lucide-react";
 
 type Task={id:string;title:string;done:boolean;tag:string;due_date:string|null};
@@ -13,10 +14,10 @@ function formatMoney(value:string|number){return new Intl.NumberFormat("pt-BR",{
 function daysUntil(date:string|null){if(!date)return null;const a=new Date();a.setHours(0,0,0,0);const b=new Date(date+"T00:00:00");return Math.ceil((b.getTime()-a.getTime())/86400000);}
 
 export default function Home(){
- const {signOut}=useClerk(); const {isLoaded,isSignedIn}=useAuth();
+ const {signOut}=useClerk(); const {isLoaded,isSignedIn}=useAuth(); const router=useRouter();
  const [active,setActive]=useState("Visão geral"); const [mobile,setMobile]=useState(false); const [project,setProject]=useState<Project|null>(null); const [loading,setLoading]=useState(true); const [error,setError]=useState<string|null>(null);
 
- useEffect(()=>{if(!isSignedIn)return; fetch("/api/projects",{cache:"no-store"}).then(async r=>{const data=await r.json();if(!r.ok)throw new Error(data.error||"Não foi possível carregar o projeto.");setProject(data.projects?.[0]??null);}).catch(e=>setError(e.message)).finally(()=>setLoading(false));},[isSignedIn]);
+ useEffect(()=>{if(!isSignedIn)return; fetch("/api/projects",{cache:"no-store"}).then(async r=>{const data=await r.json();if(!r.ok)throw new Error(data.error||"Não foi possível carregar o projeto.");if(data.role==="owner"||data.role==="admin"){router.replace("/admin");return;}setProject(data.projects?.[0]??null);}).catch(e=>setError(e.message)).finally(()=>setLoading(false));},[isSignedIn,router]);
 
  const tasks=useMemo(()=>project?.tasks?.map(t=>({...t,done:t.status==="completed",tag:t.category||"Produção"}))??[],[project]);
  const done=tasks.filter(t=>t.done).length; const progress=project?.progress??(tasks.length?Math.round(done/tasks.length*100):0); const days=daysUntil(project?.event_date??null);
