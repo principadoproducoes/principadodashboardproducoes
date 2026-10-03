@@ -20,19 +20,22 @@ export async function GET() {
     user.emailAddresses[0]?.emailAddress ??
     null;
 
+  const displayName =
+    [user.firstName, user.lastName].filter(Boolean).join(" ") || null;
+
   const sql = getDb();
 
   await sql`
-    INSERT INTO users (clerk_user_id, email, name)
+    INSERT INTO users (clerk_user_id, email, display_name)
     VALUES (
       ${userId},
       ${primaryEmail},
-      ${[user.firstName, user.lastName].filter(Boolean).join(" ") || null}
+      ${displayName}
     )
     ON CONFLICT (clerk_user_id)
     DO UPDATE SET
       email = EXCLUDED.email,
-      name = EXCLUDED.name,
+      display_name = EXCLUDED.display_name,
       updated_at = NOW()
   `;
 
@@ -69,10 +72,23 @@ export async function GET() {
         '[]'::json
       ) AS tasks
     FROM projects p
-    JOIN project_members pm ON pm.project_id = p.id
-    JOIN users u ON u.id = pm.user_id
+    LEFT JOIN project_members pm ON pm.project_id = p.id
+    LEFT JOIN users u ON u.id = pm.user_id
     LEFT JOIN tasks t ON t.project_id = p.id
-    WHERE u.clerk_user_id = ${userId}
+    WHERE EXISTS (
+      SELECT 1
+      FROM users viewer
+      WHERE viewer.clerk_user_id = ${userId}
+        AND (
+          viewer.role IN ('owner', 'admin')
+          OR EXISTS (
+            SELECT 1
+            FROM project_members member
+            WHERE member.project_id = p.id
+              AND member.user_id = viewer.id
+          )
+        )
+    )
     GROUP BY p.id
     ORDER BY p.event_date NULLS LAST, p.created_at DESC
   `;
