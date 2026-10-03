@@ -23,7 +23,7 @@ export async function GET(request: Request) {
   const projectId = searchParams.get("project_id");
   if (!validResource(resource)) return Response.json({ error: "Recurso inválido." }, { status: 400 });
 
-  const sql = getDb();
+  const sql: any = getDb();
   let items: any[] = [];
 
   if (resource === "tasks") {
