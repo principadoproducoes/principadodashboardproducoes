@@ -39,6 +39,11 @@ export async function GET() {
       updated_at = NOW()
   `;
 
+  const accessRows = await sql\`
+    SELECT role FROM users WHERE clerk_user_id = ${userId} LIMIT 1
+  \`;
+  const role = accessRows[0]?.role ?? "client";
+
   const projects = await sql`
     SELECT
       p.id,
@@ -93,5 +98,5 @@ export async function GET() {
     ORDER BY p.event_date NULLS LAST, p.created_at DESC
   `;
 
-  return Response.json({ projects });
+  return Response.json({ projects, role });
 }
