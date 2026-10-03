@@ -25,15 +25,55 @@ export async function GET() {
 
   const sql = getDb();
 
+  /*
+   * Client onboarding / tenant linking:
+   * - Clerk remains the identity provider.
+   * - The primary e-mail is the business key used to find the client's profile.
+   * - If the client was already created by the Principado admin, the user is
+   *   automatically linked to that client record.
+   * - If no client exists yet, a basic client profile is created automatically.
+   * This keeps the client's projects/data isolated by client_id in Neon.
+   */
+  const normalizedEmail = primaryEmail?.trim().toLowerCase() || null;
+
+  let clientId: string | null = null;
+
+  if (normalizedEmail) {
+    const existingClient = await sql`
+      SELECT id
+      FROM clients
+      WHERE LOWER(TRIM(email)) = ${normalizedEmail}
+      ORDER BY created_at ASC
+      LIMIT 1
+    `;
+
+    if (existingClient[0]?.id) {
+      clientId = existingClient[0].id;
+    } else {
+      const clientRows = await sql`
+        INSERT INTO clients (name, email, phone)
+        VALUES (
+          ${displayName || normalizedEmail},
+          ${normalizedEmail},
+          ${user.phoneNumbers[0]?.phoneNumber ?? null}
+        )
+        RETURNING id
+      `;
+      clientId = clientRows[0]?.id ?? null;
+    }
+  }
+
   await sql`
-    INSERT INTO users (clerk_user_id, email, display_name)
+    INSERT INTO users (clerk_user_id, client_id, email, display_name)
     VALUES (
       ${userId},
+      ${clientId},
       ${primaryEmail},
       ${displayName}
     )
     ON CONFLICT (clerk_user_id)
     DO UPDATE SET
+      client_id = COALESCE(EXCLUDED.client_id, users.client_id),
       email = EXCLUDED.email,
       display_name = EXCLUDED.display_name,
       updated_at = NOW()
